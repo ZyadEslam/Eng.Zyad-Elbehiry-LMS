@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: lms, POSTGRES_PASSWORD: lms_secret, POSTGRES_DB: lms }
+    volumes: [ "pgdata:/var/lib/postgresql/data" ]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U lms"], interval: 5s, retries: 10 }
+  web:
+    build: .
+    ports: [ "3000:3000" ]
+    environment:
+      DATABASE_URL: postgresql://lms:lms_secret@db:5432/lms
+      AUTH_SECRET: ${AUTH_SECRET:-please-change-this-secret-to-32-random-chars}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@12345}
+      ADMIN_NAME: "Eng. Zyad Elbehiry"
+    depends_on: { db: { condition: service_healthy } }
+volumes: { pgdata: }
