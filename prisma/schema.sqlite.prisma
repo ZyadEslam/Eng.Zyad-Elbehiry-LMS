@@ -1,10 +1,10 @@
-// Prisma schema — PostgreSQL (production/Vercel). For local SQLite dev: cp prisma/schema.sqlite.prisma prisma/schema.prisma
+// Prisma schema — SQLite for development. For production switch provider to "postgresql".
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
