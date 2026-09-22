@@ -48,12 +48,14 @@ lms/
 
 ```bash
 cd lms
-cp .env.example .env          # عدّل AUTH_SECRET و ADMIN_PASSWORD
-npm install                   # يشغّل prisma generate تلقائيًا
-npx prisma db push            # ينشئ قاعدة SQLite: prisma/dev.db
+cp .env.example .env          # ضع DATABASE_URL (PostgreSQL) — أو للتجربة السريعة بدون PostgreSQL:
+#   cp prisma/schema.sqlite.prisma prisma/schema.prisma   ثم   DATABASE_URL="file:./dev.db"
+npm install
+npm run db:push               # ينشئ الجداول
 npm run db:seed               # ينشئ حساب المدير
 npm run dev                   # http://localhost:3000
 ```
+> كل أوامر `npm run …` تقرأ `.env` تلقائيًا وتضبط `DIRECT_URL = DATABASE_URL` إذا لم يكن موجودًا — لذلك لا تستخدم `npx prisma …` مباشرة، استخدم `npm run db:push` / `npm run db:seed`.
 بيانات الدخول الافتراضية: `admin` / `Admin@12345` (غيّرها من `.env` قبل الـ seed، أو من لوحة المستخدمين → 🔑 كلمة مرور).
 
 ### متغيرات البيئة

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { verifyToken, COOKIE } from "@/lib/auth";
+import { verifyToken, COOKIE } from "@/lib/auth-edge";
 
 const PUBLIC = ["/login", "/api/auth/login"];
 export async function middleware(req: NextRequest) {

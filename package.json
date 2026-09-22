@@ -3,20 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0 -p 3000",
-    "build": "prisma generate && prisma db push --accept-data-loss && next build",
-    "start": "next start -H 0.0.0.0 -p 3000",
+    "dev": "node prisma/env.cjs next dev -H 0.0.0.0 -p 3001",
+    "build": "node prisma/env.cjs prisma generate && node prisma/env.cjs prisma db push --accept-data-loss && next build",
+    "start": "node prisma/env.cjs next start -H 0.0.0.0 -p 3000",
     "lint": "next lint",
-    "db:push": "prisma db push",
+    "db:push": "node prisma/env.cjs prisma db push",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio",
-    "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && prisma db push --accept-data-loss && next build",
+    "db:seed": "node prisma/env.cjs tsx prisma/seed.ts",
+    "db:studio": "node prisma/env.cjs prisma studio",
+    "postinstall": "prisma generate || true",
+    "vercel-build": "node prisma/env.cjs prisma generate && node prisma/env.cjs prisma db push --accept-data-loss && next build",
     "db:seed:prod": "tsx prisma/seed.ts"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node prisma/env.cjs tsx prisma/seed.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.1",
@@ -29,6 +29,7 @@
     "bcryptjs": "^2.4.3",
     "gsap": "^3.12.5",
     "jose": "^5.9.6",
+    "lucide-react": "^1.47.0",
     "next": "^15.1.0",
     "postcss": "^8.4.49",
     "prisma": "^5.22.0",
@@ -39,7 +40,6 @@
     "typescript": "^5.7.2",
     "zod": "^3.23.8"
   },
-  "devDependencies": {},
   "allowScripts": {
     "@prisma/client": true,
     "@prisma/engines": true,
