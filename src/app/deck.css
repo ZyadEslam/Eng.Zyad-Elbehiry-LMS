@@ -258,3 +258,25 @@ table.tb td:first-child{font-weight:900}
 .player.portrait #stage{align-items:center}
 .player.portrait .nav{bottom:calc(50vh - (100vw * 720 / 1280) / 2 - 64px)}
 .rotate-hint{display:none;position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:70;background:rgba(0,0,0,.75);color:#fff;padding:8px 16px;border-radius:999px;font-size:13px;font-weight:800;gap:8px;align-items:center;pointer-events:none}
+
+/* icon chrome */
+.brand .sq svg,.chap svg{display:block}
+.chap{gap:6px}
+.hd .num svg{display:block}
+.sm .pt .ck{display:grid;place-items:center}
+.foot .fl{display:inline-flex;align-items:center;gap:4px;color:#ff8a8c;text-decoration:none;margin-left:14px}
+.foot .fl.w{color:#fff}
+.foot span:nth-child(2){display:flex;align-items:center}
+.nav button{display:grid;place-items:center}
+.title-slide .icon,.hook .big{color:#E6292D}
+.title-slide .by{gap:10px}
+
+/* line icons inside content tiles */
+.card .ic,.obj .ic,.tl .ic,.fs .ic,.mt .m .ic,.wheel .c .ic{display:inline-grid;place-items:center;color:var(--red)}
+.card .ic{padding:10px;line-height:0}
+.card .ic svg{width:30px;height:30px}
+.obj .ic svg,.tl .ic svg{width:30px;height:30px}
+.fs .ic svg{width:34px;height:34px}
+.mt .m .ic svg{width:40px;height:40px}
+.wheel .c .ic svg{width:34px;height:34px}
+.mx .card .ic svg{width:22px;height:22px}

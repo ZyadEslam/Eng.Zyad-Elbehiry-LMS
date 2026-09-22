@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowLeft, CheckCircle2, Clock3, PlayCircle } from "lucide-react";
 import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CHAPTERS, SESSIONS, slideCount } from "@/lib/content";
 import Nav from "@/components/ui/Nav";
 import Footer from "@/components/ui/Footer";
 import Reveal from "@/components/ui/Reveal";
+import Ring from "@/components/ui/Ring";
+import { SessionIcon, ChapterIcon } from "@/components/ui/icons";
 
 export const dynamic = "force-dynamic";
-const fmt = (sec: number) => sec < 60 ? `${sec} ث` : sec < 3600 ? `${Math.round(sec / 60)} د` : `${(sec / 3600).toFixed(1)} س`;
+const fmt = (sec: number) => sec < 60 ? `${sec}s` : sec < 3600 ? `${Math.round(sec / 60)}m` : `${(sec / 3600).toFixed(1)}h`;
+const two = (n: number) => String(n).padStart(2, "0");
 
 export default async function Dashboard() {
   const user = await getSessionUser(); if (!user) redirect("/login");
@@ -18,50 +22,61 @@ export default async function Dashboard() {
   const totalTime = rows.reduce((a, r) => a + r.timeSpentSec, 0);
   const overall = Math.round(SESSIONS.reduce((a, s) => { const r = byNum[s.num]; return a + (r ? Math.min(1, r.maxSlide / (slideCount(s) - 1)) : 0); }, 0) / SESSIONS.length * 100);
   const resume = SESSIONS.find((s) => !byNum[s.num]?.completed) ?? SESSIONS[0];
+  const rr = byNum[resume.num];
 
-  return (<div className="deckbg min-h-screen flex flex-col">
+  return (<div className="flex min-h-screen flex-col">
     <Nav user={user} />
-    <Reveal className="mx-auto w-full max-w-6xl px-4 py-8 space-y-10 flex-1">
-      {/* hero – mirrors the deck title slide */}
-      <section className="panel relative overflow-hidden p-6 md:p-8" data-reveal>
-        <div className="pointer-events-none absolute -left-10 -bottom-16 text-[160px] opacity-10 select-none">{resume.icon}</div>
-        <div className="relative flex flex-wrap items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="hidden sm:grid h-[84px] w-[84px] flex-none place-items-center rounded-[22px] bg-brand font-mono text-[34px] font-black text-white shadow-[0_16px_34px_rgba(230,41,45,.4)]">{"</>"}</div>
-            <div>
-              <div className="font-bold text-[#5f6368]">أهلًا يا {user.name} 👋</div>
-              <h1 className="text-2xl font-black leading-tight md:text-3xl">البرمجة والذكاء الاصطناعي <span className="text-brand">— الترم الأول</span></h1>
-              <div className="text-sm font-semibold text-[#5f6368]" dir="ltr">Programming &amp; AI — Grade 11 • Engineering &amp; CS Track</div>
+    <div className="paper paper-fade absolute inset-x-0 top-0 -z-10 h-[420px]" />
+    <Reveal className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-10 space-y-14">
+      {/* hero */}
+      <section className="grid items-center gap-8 lg:grid-cols-[1fr_auto]" data-reveal>
+        <div>
+          <div className="eyebrow">Welcome back</div>
+          <h1 className="mt-1 text-[36px] font-black leading-[1.15] md:text-[44px]">أهلًا {user.name.replace(/^(Eng\.?|م\.|أ\.|د\.)\s*/i, "").split(" ")[0]}، <span className="text-brand">كمّل</span> من حيث وقفت</h1>
+          <div className="mt-6 ticket panel flex flex-wrap items-center gap-5 p-5">
+            <div className="grid h-14 w-14 flex-none place-items-center rounded-xl bg-[#111] text-white"><SessionIcon num={resume.num} className="h-7 w-7" /></div>
+            <div className="min-w-0 flex-1">
+              <div className="eyebrow">Session {two(resume.num)} · {CHAPTERS[String(resume.chapter)].en}</div>
+              <div className="truncate text-[20px] font-black">{resume.title}</div>
+              <div className="tick mt-1" dir="ltr">{rr ? `slide ${rr.lastSlide + 1} / ${slideCount(resume)} · ${fmt(rr.timeSpentSec)}` : `${slideCount(resume)} slides · not started`}</div>
             </div>
+            <Link href={`/session/${resume.num}`} className="btn-primary w-full sm:w-auto"><PlayCircle size={18} /> {rr ? "كمّل الجلسة" : "ابدأ الجلسة"}</Link>
           </div>
-          <Link href={`/session/${resume.num}`} className="btn-primary w-full px-7 py-3 text-lg sm:w-auto">▶ {byNum[resume.num] ? "كمّل" : "ابدأ"} الجلسة {resume.num}</Link>
         </div>
-        <div className="relative mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {[["📈", "الإنجاز الكلي", `${overall}%`], ["✅", "جلسات مكتملة", `${done} / ${SESSIONS.length}`], ["⏱", "وقت المذاكرة", fmt(totalTime)], ["🗂", "الشرائح", `${SESSIONS.reduce((a, s) => a + slideCount(s), 0)}`]].map(([ic, l, v]) => (
-            <div key={l} className="rounded-2xl border-[1.5px] border-[#e6e6e6] bg-white p-4 text-center"><div className="text-2xl">{ic}</div><div className="text-3xl font-black text-brand" dir="ltr">{v}</div><div className="text-xs font-extrabold text-[#5f6368]">{l}</div></div>
-          ))}
+        <div className="panel flex items-center gap-6 p-6">
+          <Ring pct={overall} size={124} sub="overall" />
+          <div className="space-y-3">
+            <div><div className="eyebrow">Completed</div><div className="text-[26px] font-black leading-none" dir="ltr">{done}<span className="text-[#bbb]"> / {SESSIONS.length}</span></div></div>
+            <div><div className="eyebrow">Study time</div><div className="text-[26px] font-black leading-none" dir="ltr">{fmt(totalTime)}</div></div>
+          </div>
         </div>
-        <div className="relative mt-4 h-2 overflow-hidden rounded-full bg-[#eee]"><div className="h-2 rounded-full bg-gradient-to-l from-brand to-[#ff6b6e] transition-all" style={{ width: `${overall}%` }} /></div>
       </section>
 
       {Object.entries(CHAPTERS).map(([cn, ch]) => (
-        <section key={cn} className="space-y-4">
-          <div className="hd2" data-reveal><div className="num">{cn}</div><div><h2>{ch.icon} {ch.name}</h2><div className="en">{ch.en}</div></div></div>
+        <section key={cn} className="space-y-5">
+          <div className="hd2" data-reveal>
+            <div className="flex items-end gap-4"><span className="num">{two(Number(cn))}</span><div><h2>{ch.name}</h2><div className="en">{ch.en}</div></div></div>
+            <ChapterIcon ch={cn} className="mb-1 h-8 w-8 text-[#bbb]" strokeWidth={1.5} />
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {SESSIONS.filter((s) => String(s.chapter) === cn).map((s) => {
               const r = byNum[s.num]; const total = slideCount(s); const pct = r ? Math.round(Math.min(1, r.maxSlide / (total - 1)) * 100) : 0;
               return (
-                <Link key={s.num} href={`/session/${s.num}`} className="panel group relative overflow-hidden p-5 transition hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(0,0,0,.08)]" data-reveal>
-                  <span className="absolute inset-y-0 right-0 w-1.5 bg-brand opacity-0 transition group-hover:opacity-100" />
+                <Link key={s.num} href={`/session/${s.num}`} className="group panel relative flex flex-col overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-[#111] hover:shadow-[0_24px_40px_-24px_rgba(0,0,0,.35)]" data-reveal>
                   <div className="flex items-start justify-between">
-                    <span className="inline-block rounded-[14px] border-[1.5px] border-[#ffd7d8] bg-[#fff5f5] px-3.5 py-2 text-[34px] leading-none">{s.icon}</span>
-                    {r?.completed ? <span className="badge bg-[#e7f7ee] text-[#0b5f36]">✔ مكتملة</span> : r ? <span className="badge bg-[#fff8e1] text-[#8a5a00]">جارية {pct}%</span> : <span className="badge bg-[#f3f3f3] text-[#5f6368]">لم تبدأ</span>}
+                    <span className="mono text-[40px] font-black leading-none text-[#e3e3e3] transition group-hover:text-brand">{two(s.num)}</span>
+                    <span className="grid h-11 w-11 place-items-center rounded-xl border border-[#e6e6e6] bg-[#fafafa] text-[#333] transition group-hover:border-brand group-hover:bg-brand group-hover:text-white"><SessionIcon num={s.num} className="h-5 w-5" /></span>
                   </div>
-                  <div className="mt-3 inline-block rounded-full bg-brand px-3 py-0.5 text-xs font-extrabold text-white">الجلسة {s.num}</div>
-                  <h3 className="mt-1 text-[19px] font-black leading-snug group-hover:text-brand">{s.title}</h3>
-                  <p className="text-xs font-semibold text-[#5f6368]" dir="ltr">{s.en}</p>
-                  <div className="mt-4 flex items-center justify-between text-xs font-extrabold text-[#5f6368]"><span>{total} شريحة</span><span dir="ltr">{r ? `${fmt(r.timeSpentSec)} · ` : ""}{pct}%</span></div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#eee]"><div className={`h-1.5 rounded-full ${r?.completed ? "bg-[#1a9c5b]" : "bg-brand"}`} style={{ width: `${pct}%` }} /></div>
+                  <h3 className="mt-4 text-[18px] font-black leading-snug">{s.title}</h3>
+                  <p className="eyebrow mt-1 normal-case tracking-normal">{s.en}</p>
+                  <div className="mt-auto pt-5">
+                    <div className="mb-1.5 flex items-center justify-between text-[11.5px] font-extrabold">
+                      {r?.completed ? <span className="flex items-center gap-1 text-emerald-700"><CheckCircle2 size={13} /> مكتملة</span> : r ? <span className="flex items-center gap-1 text-[#8a5a00]"><Clock3 size={13} /> جارية</span> : <span className="text-[#8a8a8a]">لم تبدأ</span>}
+                      <span className="tick" dir="ltr">{total} slides{r ? ` · ${fmt(r.timeSpentSec)}` : ""} · {pct}%</span>
+                    </div>
+                    <div className="h-1 overflow-hidden rounded-full bg-[#eee]"><div className={`h-1 ${r?.completed ? "bg-emerald-500" : "bg-brand"}`} style={{ width: `${pct}%` }} /></div>
+                  </div>
+                  <ArrowLeft size={16} className="absolute bottom-5 left-5 text-[#ccc] opacity-0 transition group-hover:-translate-x-1 group-hover:text-brand group-hover:opacity-100" />
                 </Link>
               );
             })}

@@ -7,6 +7,8 @@ import { useGSAP } from "@gsap/react";
 import type { Session } from "@/lib/content";
 import { CHAPTERS, COURSE, CREATOR } from "@/lib/content";
 import Circuit from "./Circuit";
+import { ChapterIcon } from "@/components/ui/icons";
+import { ChevronLeft, ChevronRight, Grid2X2 } from "lucide-react";
 import { SlideBody, TitleSlide, EndSlide } from "./Slides";
 import "@/app/deck.css";
 
@@ -131,27 +133,27 @@ export default function Player({ session: s, startSlide = 0, userName, isAdmin }
   return (
     <div className="player" ref={root}>
       <div id="help">← / Space: next • → : back • N: notes • F: fullscreen • Esc: exit</div>
-      <div className="rotate-hint">🔄 لفّ الجهاز أفقيًا لعرض أفضل</div>
+      <div className="rotate-hint">لفّ الجهاز أفقيًا لعرض أفضل</div>
       <div id="stage">
         <div id="deck" ref={deck} onClick={(e) => { if ((e.target as HTMLElement).closest(".opt,.nav,button,a")) return; next(); }}>
           <Circuit />
           <div className="topbar" />
-          <div className="brand"><div className="sq">{"</>"}</div><div>{CREATOR}<small>Programming &amp; AI — Grade 11</small></div></div>
-          <div className="chap">{ch.icon} الفصل <b>{s.chapter}</b> • {ch.name} • الجلسة <b>{s.num}</b></div>
+          <div className="brand"><div className="sq"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M8 7 3 12l5 5" /><path d="m16 7 5 5-5 5" /><path d="M14 4 10 20" /></svg></div><div>{CREATOR}<small>Programming &amp; AI — Grade 11</small></div></div>
+          <div className="chap"><ChapterIcon ch={s.chapter} className="h-4 w-4 text-[#E6292D]" strokeWidth={2.2} /> الفصل <b>{s.chapter}</b> • {ch.name} • الجلسة <b>{s.num}</b></div>
           {bodies.map((b, k) => <section key={k} className={`slide${k === i ? " active" : ""}`}><div className="fitwrap">{b}</div></section>)}
           <div id="prog" style={{ width: `${((i + 1) / total) * 100}%` }} />
           <div className="foot">
             <span className="tag">{COURSE} • الترم الأول</span>
             <span>
-              <Link href={prevHref} style={{ color: "#ff8a8c", textDecoration: "none", marginLeft: 14 }}>◀ السابقة</Link>
-              <Link href="/dashboard" style={{ color: "#fff", textDecoration: "none", marginLeft: 14 }}>☰ الجلسات</Link>
-              <Link href={nextHref} style={{ color: "#ff8a8c", textDecoration: "none" }}>التالية ▶</Link>
+              <Link href={prevHref} className="fl"><ChevronRight size={15} /> السابقة</Link>
+              <Link href="/dashboard" className="fl w"><Grid2X2 size={14} /> الجلسات</Link>
+              <Link href={nextHref} className="fl">التالية <ChevronLeft size={15} /></Link>
             </span>
             <span className="cnt" id="cnt">{userName} • {i + 1} / {total}</span>
           </div>
         </div>
       </div>
-      <div className="nav"><button onClick={prev} title="السابق">→</button><button onClick={next} title="التالي">←</button></div>
+      <div className="nav"><button onClick={prev} title="السابق"><ChevronRight size={24} /></button><button onClick={next} title="التالي"><ChevronLeft size={24} /></button></div>
       {isAdmin && <div id="notes" className={showNotes ? "show" : ""}>{notes[i]}</div>}
     </div>
   );
